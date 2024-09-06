@@ -4,6 +4,7 @@ import "./globals.css";
 import { AppStoreProvider } from "@/providers/StoreProvider";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import { ThemeProvider } from "@/components/theme-provider";
+import AuthProvider from "@/providers/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,18 +21,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ReactQueryProvider>
-          <AppStoreProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-            </ThemeProvider>
-          </AppStoreProvider>
-        </ReactQueryProvider>
+        <AuthProvider>
+          <ReactQueryProvider>
+            <AppStoreProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+              </ThemeProvider>
+            </AppStoreProvider>
+          </ReactQueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

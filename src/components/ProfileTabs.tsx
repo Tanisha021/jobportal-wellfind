@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Profile from "./sections/Profile";
 import Files from "./sections/Files";
+import JobPreferencesForm from "./sections/Preferences";
 
 export function ProfileTabs() {
   const skills = [
@@ -30,7 +31,7 @@ export function ProfileTabs() {
         <TabsList className="grid w-full h-auto grid-cols-2 sm:grid-cols-4">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="resume">Resume</TabsTrigger>
-          <TabsTrigger value="perferences">Preferences</TabsTrigger>
+          <TabsTrigger value="preferences">Preferences</TabsTrigger>
           <TabsTrigger value="culture">Culture</TabsTrigger>
         </TabsList>
       </div>
@@ -39,6 +40,9 @@ export function ProfileTabs() {
       </TabsContent>
       <TabsContent value="resume">
         <Files />
+      </TabsContent>
+      <TabsContent value="preferences">
+        <JobPreferencesForm />
       </TabsContent>
     </Tabs>
   );

@@ -1,115 +1,215 @@
-import TestQuery from "@/components/TestQuery";
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  BriefcaseIcon,
+  BuildingIcon,
+  MenuIcon,
+  MoonIcon,
+  SearchIcon,
+  SunIcon,
+  UserIcon,
+} from "lucide-react";
+import Sidebar from "@/components/Sidebar";
+import { ModeToggle } from "@/components/ThemeToggler";
+import { useAppStore } from "@/hooks/useAppStore";
+import Header from "@/components/Header";
+import { withAuth } from "@/components/withAuth";
 
-export default function Home() {
+// Job listing type
+type JobListing = {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  postedDate: string;
+};
+
+// Sample job listings data
+const initialJobListings: JobListing[] = [
+  {
+    id: 1,
+    title: "Frontend Developer",
+    company: "TechCorp",
+    location: "San Francisco, CA",
+    postedDate: "2023-07-15",
+  },
+  {
+    id: 2,
+    title: "Data Scientist",
+    company: "DataWiz",
+    location: "New York, NY",
+    postedDate: "2023-07-14",
+  },
+  {
+    id: 3,
+    title: "Product Manager",
+    company: "InnovateCo",
+    location: "Austin, TX",
+    postedDate: "2023-07-13",
+  },
+  {
+    id: 4,
+    title: "UX Designer",
+    company: "DesignHub",
+    location: "Seattle, WA",
+    postedDate: "2023-07-12",
+  },
+  {
+    id: 5,
+    title: "Backend Engineer",
+    company: "ServerPro",
+    location: "Boston, MA",
+    postedDate: "2023-07-11",
+  },
+];
+
+export const Dashboard = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [jobListings, setJobListings] =
+    useState<JobListing[]>(initialJobListings);
+
+  useEffect(() => {
+    const filteredListings = initialJobListings.filter(
+      (job) =>
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.location.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setJobListings(filteredListings);
+  }, [searchTerm]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <TestQuery />
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div className={`flex h-screen bg-gray-100 dark:bg-gray-900`}>
+      <Sidebar />
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <Header />
+
+        {/* Dashboard Content */}
+        <main className="flex-1 overflow-y-auto p-4 bg-gray-100 dark:bg-gray-900">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Jobs
+                </CardTitle>
+                <BriefcaseIcon className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">1,234</div>
+                <p className="text-xs text-green-500 dark:text-green-400">
+                  +20% from last month
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  New Applications
+                </CardTitle>
+                <UserIcon className="h-4 w-4 text-purple-500 dark:text-purple-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">573</div>
+                <p className="text-xs text-green-500 dark:text-green-400">
+                  +12% from last week
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Active Companies
+                </CardTitle>
+                <BuildingIcon className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">248</div>
+                <p className="text-xs text-green-500 dark:text-green-400">
+                  +7% from last quarter
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Placement Rate
+                </CardTitle>
+                <UserIcon className="h-4 w-4 text-green-500 dark:text-green-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">68%</div>
+                <p className="text-xs text-green-500 dark:text-green-400">
+                  +5% from last year
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Job Listings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 relative">
+                  <SearchIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <Input
+                    placeholder="Search jobs..."
+                    className="pl-8 max-w-sm bg-white dark:bg-gray-800"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50 dark:bg-gray-800">
+                      <TableHead>Job Title</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Posted Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {jobListings.map((job) => (
+                      <TableRow
+                        key={job.id}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        <TableCell className="font-medium">
+                          {job.title}
+                        </TableCell>
+                        <TableCell>{job.company}</TableCell>
+                        <TableCell>{job.location}</TableCell>
+                        <TableCell>{job.postedDate}</TableCell>
+                      </TableRow>
+                    ))}
+                    {jobListings.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center">
+                          No jobs found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
-}
+};
+
+export default withAuth(Dashboard);

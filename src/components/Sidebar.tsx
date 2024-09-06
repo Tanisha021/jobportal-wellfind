@@ -1,10 +1,17 @@
 "use client";
-import { BriefcaseIcon, BuildingIcon, UserIcon, XIcon } from "lucide-react";
+import {
+  BriefcaseIcon,
+  BuildingIcon,
+  LogOutIcon,
+  UserIcon,
+  XIcon,
+} from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/hooks/useAppStore";
 import { Logo } from "./Logo";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -49,17 +56,19 @@ const Sidebar = () => {
           <nav className="flex-1 overflow-y-auto p-2">
             <Button
               variant="ghost"
+              onClick={() => router.push("/")}
+              className="w-full justify-start mb-1 text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+            >
+              <BuildingIcon className="mr-2 h-4 w-4" />
+              Homepage
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => router.push("/jobs")}
               className="w-full justify-start mb-1 text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
             >
               <BriefcaseIcon className="mr-2 h-4 w-4" />
               Jobs
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start mb-1 text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
-            >
-              <BuildingIcon className="mr-2 h-4 w-4" />
-              Companies
             </Button>
             <Button
               onClick={() => router.push("/profile")}
@@ -68,6 +77,14 @@ const Sidebar = () => {
             >
               <UserIcon className="mr-2 h-4 w-4" />
               Profile
+            </Button>
+            <Button
+              onClick={() => signOut()}
+              variant="ghost"
+              className="w-full justify-start mb-1 text-red-500 hover:text-red-700 hover:bg-gray-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-gray-700"
+            >
+              <LogOutIcon className="mr-2 h-4 w-4" />
+              Logout
             </Button>
           </nav>
         </div>

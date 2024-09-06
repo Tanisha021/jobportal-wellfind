@@ -1,10 +1,23 @@
-import React, { useCallback } from "react";
+"use client";
+import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-export const Files = (props) => {
-  const onDrop = useCallback((acceptedFiles) => {
-    // Handle the uploaded files here
-    console.log(acceptedFiles);
+interface FileData {
+  name: string;
+  size: number;
+  type: string;
+}
+
+export const Files: React.FC = () => {
+  const [uploadedFiles, setUploadedFiles] = useState<FileData[]>([]);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const newFiles = acceptedFiles.map((file) => ({
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    }));
+    setUploadedFiles((prev) => [...prev, ...newFiles]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -47,28 +60,34 @@ export const Files = (props) => {
           You can upload 4 files (up to 4 MB each)
         </p>
       </div>
+
       <div className="mt-4">
         <h3 className="text-lg font-medium text-gray-900">Uploaded files</h3>
         <p className="mt-1 text-sm text-gray-500">
           View the uploaded files here
         </p>
         <div className="mt-2 border-2 border-gray-200 rounded-md p-4">
-          <div className="flex items-center justify-center h-32">
-            {/* <svg
-              className="h-8 w-8 text-gray-400 hidden"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg> */}
-            <p className="ml-2 text-sm text-gray-500">No files uploaded</p>
-          </div>
+          {uploadedFiles.length > 0 ? (
+            <ul>
+              {uploadedFiles.map((file, index) => (
+                <li
+                  key={index}
+                  className="flex justify-between items-center py-2 border-b last:border-b-0"
+                >
+                  <div className="text-sm font-medium text-gray-800">
+                    {file.name}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {(file.size / 1024).toFixed(2)} KB - {file.type}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex items-center justify-center h-32">
+              <p className="ml-2 text-sm text-gray-500">No files uploaded</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

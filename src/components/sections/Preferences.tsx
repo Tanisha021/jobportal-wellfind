@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,25 +8,24 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@radix-ui/react-select";
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-places-autocomplete";
-import Script from "react-load-script";
 
-const JobPreferencesForm = () => {
-  const [selectedRoles, setSelectedRoles] = useState([]);
-  const [selectedLocations, setSelectedLocations] = useState([]);
-  const [address, setAddress] = useState("");
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+interface Location {
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+const JobPreferencesForm: React.FC = () => {
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<Location[]>([]);
+  const [address, setAddress] = useState<string>("");
+  const [isScriptLoaded] = useState<boolean>(false);
+  const router = useRouter();
+
   const roles = [
     "Engineering",
     "Product",
@@ -36,67 +35,43 @@ const JobPreferencesForm = () => {
     "Operations",
     "Other",
   ];
-  const router = useRouter();
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    // Handle form submission here
-    router.push("/profilecreation/resume");
-  };
-  const locationOptions = [
-    { value: "new-york", label: "New York, USA" },
-    { value: "san-francisco", label: "San Francisco, USA" },
-    { value: "london", label: "London, UK" },
-    { value: "berlin", label: "Berlin, Germany" },
-    { value: "tokyo", label: "Tokyo, Japan" },
-    { value: "sydney", label: "Sydney, Australia" },
-    // Add more locations or fetch dynamically
-  ];
-  //role
-  const handleRoleSelect = (event) => {
+
+  const handleRoleSelect = (event: ChangeEvent<HTMLSelectElement>) => {
     const selectedRole = event.target.value;
     if (!selectedRoles.includes(selectedRole)) {
-      setSelectedRoles([...selectedRoles, selectedRole]);
+      setSelectedRoles((prev) => [...prev, selectedRole]);
     }
   };
 
-  const handleRoleRemove = (role) => {
-    setSelectedRoles(selectedRoles.filter((r) => r !== role));
+  const handleRoleRemove = (role: string) => {
+    setSelectedRoles((prev) => prev.filter((r) => r !== role));
   };
 
-  //location
-  // const handleLocationSelect = (selectedOption) => {
-  //   if (selectedOption && !selectedLocations.some(loc => loc.value === selectedOption.value)) {
-  //     setSelectedLocations([...selectedLocations, selectedOption]);
-  //   }
-  // };
-
-  // const handleLocationRemove = (locationToRemove) => {
-  //   setSelectedLocations(selectedLocations.filter(loc => loc.value !== locationToRemove.value));
-  // };
-  const handleScriptLoad = () => {
-    setIsScriptLoaded(true);
-  };
-  const handleSelect = async (value) => {
-    const results = await geocodeByAddress(value);
-    const latLng = await getLatLng(results[0]);
-    setSelectedLocations([...selectedLocations, { address: value, ...latLng }]);
-    setAddress("");
+  const handleSelect = async (value: string) => {
+    try {
+      const results = await geocodeByAddress(value);
+      const latLng = await getLatLng(results[0]);
+      setSelectedLocations((prev) => [...prev, { address: value, ...latLng }]);
+      setAddress("");
+    } catch (error) {
+      console.error("Error in geocoding:", error);
+    }
   };
 
-  const handleRemoveLocation = (locationToRemove) => {
-    setSelectedLocations(
-      selectedLocations.filter(
-        (location) => location.address !== locationToRemove.address
-      )
+  const handleRemoveLocation = (locationToRemove: Location) => {
+    setSelectedLocations((prev) =>
+      prev.filter((location) => location.address !== locationToRemove.address)
     );
   };
 
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Handle form submission
+    router.push("/profilecreation/resume");
+  };
+
   return (
-    <Card className="w-full max-w-2xl mx-auto my-20 p-8">
-      <Script
-        url={`https://maps.googleapis.com/maps/api/js?key=AIzaSyD6kejGma5DjKMxED1LzRWIQOaM5av1ZTE&libraries=places`}
-        onLoad={handleScriptLoad}
-      />
+    <Card className="w-full mx-auto">
       {/* Job Search Status */}
       <Card className="space-y-2 my-4 mx-2">
         <CardHeader>
@@ -206,47 +181,6 @@ const JobPreferencesForm = () => {
         <CardContent className="w-1/2">
           <Label>Where do you want to work?</Label>
 
-          {isScriptLoaded && (
-            <PlacesAutocomplete
-              value={address}
-              onChange={setAddress}
-              onSelect={handleSelect}
-              searchOptions={{ types: ["(cities)"] }}
-            >
-              {({
-                getInputProps,
-                suggestions,
-                getSuggestionItemProps,
-                loading,
-              }) => (
-                <div>
-                  <Input
-                    {...getInputProps({
-                      placeholder: "Search and select a location",
-                      className: "mt-4",
-                    })}
-                  />
-                  <div className="mt-2">
-                    {loading && <div>Loading...</div>}
-                    {suggestions.map((suggestion) => {
-                      const style = {
-                        backgroundColor: suggestion.active ? "#e2e8f0" : "#fff",
-                      };
-                      return (
-                        <div
-                          {...getSuggestionItemProps(suggestion, { style })}
-                          className="p-2 rounded hover:bg-gray-100"
-                        >
-                          {suggestion.description}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </PlacesAutocomplete>
-          )}
-
           <div className="mt-4">
             {selectedLocations.map((location) => (
               <div
@@ -264,7 +198,6 @@ const JobPreferencesForm = () => {
               </div>
             ))}
           </div>
-          {/* to work remotely   */}
           <div className="flex items-center space-x-4 mt-4 p-2 bg-gray-50 rounded-lg shadow-sm">
             <div className="relative flex items-center">
               <Input
@@ -289,73 +222,26 @@ const JobPreferencesForm = () => {
           <CardTitle>US Work Authorization</CardTitle>
         </CardHeader>
         <CardContent>
-          <Label>
-            Are you legally authorized to work in the United States?
-          </Label>
+          <Label>Do you require US work visa sponsorship?</Label>
           <RadioGroup className="mt-4 space-y-3">
             <div className="flex items-center space-x-3">
-              <RadioGroupItem value="yes" id="us-auth-yes" />
-              <Label htmlFor="us-auth-yes">Yes</Label>
+              <RadioGroupItem value="yes" id="yes" />
+              <Label htmlFor="yes">Yes</Label>
             </div>
             <div className="flex items-center space-x-3">
-              <RadioGroupItem value="no" id="us-auth-no" />
-              <Label htmlFor="us-auth-no">No</Label>
-            </div>
-          </RadioGroup>
-
-          <Separator className="my-6" />
-
-          <Label>
-            Do you or will you require sponsorship for a US employment visa
-            (e.g., H-1B)?
-          </Label>
-          <RadioGroup className="mt-4 space-y-3">
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="yes" id="visa-yes" />
-              <Label htmlFor="visa-yes">Yes</Label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="no" id="visa-no" />
-              <Label htmlFor="visa-no">No</Label>
+              <RadioGroupItem value="no" id="no" />
+              <Label htmlFor="no">No</Label>
             </div>
           </RadioGroup>
         </CardContent>
       </Card>
 
-      {/* Company Size Preferences */}
-      <Card className="space-y-2 my-4 mx-2">
-        <CardHeader>
-          <CardTitle>Company Size Preferences</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Label>What size companies do you prefer to work at?</Label>
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            {[
-              "Seed (1 - 10 employees)",
-              "Early (11 - 50 employees)",
-              "Mid-size (51 - 200 employees)",
-              "Large (201 - 500 employees)",
-              "Very Large (501 - 1000 employees)",
-              "Massive (1001+ employees)",
-            ].map((size) => (
-              <div key={size} className="flex items-center space-x-3">
-                <Checkbox id={size} />
-                <Label htmlFor={size}>{size}</Label>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Submit Button */}
-      <div className="flex justify-end">
+      <div className="mt-4">
         <Button
-          variant="outline"
-          size="lg"
-          type="submit"
-          onClick={handleSubmit}
+          //   onClick={handleSubmit}
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg"
         >
-          Save Preferences
+          Next
         </Button>
       </div>
     </Card>
